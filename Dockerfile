@@ -1,7 +1,17 @@
 # --- Stage 1: Build & install production dependencies ---
-FROM node:22-alpine AS builder
+FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS builder
+
+# Use only the refreshed OS trust store while Node's bundled-CA fix is pending.
+# apk verifies the signed repository metadata/packages; fail on an old mirror.
+RUN apk add --no-cache --upgrade 'ca-certificates>=20261020-r0' 'ca-certificates-bundle>=20261020-r0' \
+    && update-ca-certificates
+ENV NODE_OPTIONS=--use-openssl-ca
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /usr/src/app
+
+COPY tools/verify-public-trust.mjs ./tools/verify-public-trust.mjs
+RUN node tools/verify-public-trust.mjs
 
 # Copy package files
 COPY package*.json ./
@@ -19,9 +29,19 @@ COPY .gi[t] ./.git
 RUN node tools/gen-version.js
 
 # --- Stage 2: Final runner image ---
-FROM node:22-alpine
+FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+
+# Use only the refreshed OS trust store while Node's bundled-CA fix is pending.
+# apk verifies the signed repository metadata/packages; fail on an old mirror.
+RUN apk add --no-cache --upgrade 'ca-certificates>=20261020-r0' 'ca-certificates-bundle>=20261020-r0' \
+    && update-ca-certificates
+ENV NODE_OPTIONS=--use-openssl-ca
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /usr/src/app
+
+COPY tools/verify-public-trust.mjs ./tools/verify-public-trust.mjs
+RUN node tools/verify-public-trust.mjs
 
 # Set non-root user for security
 USER node
