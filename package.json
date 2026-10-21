@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server/index.js",
     "bots": "node tools/bots.js",
-    "docker:build": "docker build -t t4c-web .",
+    "docker:build": "docker build --pull -t t4c-web .",
+    "check:public-trust": "node tools/verify-public-trust.mjs",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "build:admin-css": "tailwindcss -i client/css/admin-input.css -o client/css/admin-tailwind.css --minify",
