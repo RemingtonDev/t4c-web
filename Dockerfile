@@ -10,9 +10,6 @@ ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /usr/src/app
 
-COPY tools/verify-public-trust.mjs ./tools/verify-public-trust.mjs
-RUN node tools/verify-public-trust.mjs
-
 # Copy package files
 COPY package*.json ./
 
@@ -41,7 +38,6 @@ ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 WORKDIR /usr/src/app
 
 COPY tools/verify-public-trust.mjs ./tools/verify-public-trust.mjs
-RUN node tools/verify-public-trust.mjs
 
 # Set non-root user for security
 USER node
